@@ -1,0 +1,130 @@
+﻿<Page x:Class="taskBD.PersonsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="clr-namespace:taskBD" 
+    mc:Ignorable="d"
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="Клиенты" Loaded="Page_Loaded">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Для панели поиска -->
+            <RowDefinition Height="*"/>
+            <!-- Для DataGrid -->
+            <RowDefinition Height="Auto"/>
+            <!-- Для кнопок управления CRUD -->
+        </Grid.RowDefinitions>
+
+        <!-- Панель поиска -->
+        <Border Grid.Row="0" Margin="10,10,10,5" BorderBrush="LightGray" BorderThickness="1" Padding="5">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Поиск (Фамилия/Имя/Email):" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <TextBox x:Name="TxtSearchTerm" Width="200" Margin="0,0,10,0" VerticalContentAlignment="Center" KeyDown="TxtSearchTerm_KeyDown"/>
+                <Button x:Name="BtnSearchPerson" Content="Найти" Margin="0,0,5,0" Padding="10,2" Click="BtnSearchPerson_Click"/>
+                <Button x:Name="BtnClearSearchPerson" Content="Сброс" Padding="10,2" Click="BtnClearSearchPerson_Click"/>
+            </StackPanel>
+        </Border>
+
+        <DataGrid x:Name="PersonsDataGrid" Grid.Row="1" Margin="10,0,10,10"
+                  AutoGenerateColumns="False" CanUserAddRows="False"
+                  ItemsSource="{Binding PersonsList}" SelectionMode="Single"
+                  AlternatingRowBackground="AliceBlue" RowBackground="White"
+                  BorderBrush="DarkGray" BorderThickness="1">
+
+            <DataGrid.RowValidationErrorTemplate>
+                <ControlTemplate>
+                    <Grid Margin="0,-2,0,-2"
+                          ToolTip="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type DataGridRow}}, Path=(Validation.Errors)[0].ErrorContent}">
+                        <Ellipse StrokeThickness="0" Fill="Red" Width="12" Height="12" />
+                        <TextBlock Text="!" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,0,0" />
+                    </Grid>
+                </ControlTemplate>
+            </DataGrid.RowValidationErrorTemplate>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding ID}" IsReadOnly="True" Width="50"/>
+
+                <DataGridTextColumn Header="Фамилия" Width="150">
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="Surname" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
+                                 ValidatesOnExceptions="True" NotifyOnValidationError="True">
+                            <Binding.ValidationRules>
+                                <local:RequiredFieldRule FieldName="Фамилия" />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </DataGridTextColumn.Binding>
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="true">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                    <Setter Property="Background" Value="LightPink"/>
+                                    <Setter Property="BorderBrush" Value="Red"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Header="Имя" Width="150">
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="Name" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
+                                 ValidatesOnExceptions="True" NotifyOnValidationError="True">
+                            <Binding.ValidationRules>
+                                <local:RequiredFieldRule FieldName="Имя" />
+                                <!-- Добавим валидацию и для Имени -->
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </DataGridTextColumn.Binding>
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="true">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                    <Setter Property="Background" Value="LightPink"/>
+                                    <Setter Property="BorderBrush" Value="Red"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Header="Отчество" Binding="{Binding Patronymic, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" Width="150"/>
+                <DataGridTextColumn Header="Телефон" Binding="{Binding PhoneNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=''}" Width="120"/>
+
+                <DataGridTextColumn Header="Email" Width="*">
+                    <DataGridTextColumn.Binding>
+                        <Binding Path="Email" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"
+                                 ValidatesOnExceptions="True" NotifyOnValidationError="True" TargetNullValue=''>
+                            <Binding.ValidationRules>
+                                <local:EmailValidationRule />
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </DataGridTextColumn.Binding>
+                    <DataGridTextColumn.EditingElementStyle>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <Trigger Property="Validation.HasError" Value="true">
+                                    <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+                                    <Setter Property="Background" Value="LightPink"/>
+                                    <Setter Property="BorderBrush" Value="Red"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGridTextColumn.EditingElementStyle>
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+            <Button x:Name="BtnAddPerson" Content="Добавить" Margin="5" Padding="10,5" Click="BtnAddPerson_Click"/>
+            <Button x:Name="BtnEditPerson" Content="Редактировать (окно)" Margin="5" Padding="10,5" Click="BtnEditPerson_Click" IsEnabled="False"/>
+            <!-- Кнопка пока отключена -->
+            <Button x:Name="BtnDeletePerson" Content="Удалить" Margin="5" Padding="10,5" Click="BtnDeletePerson_Click"/>
+            <Button x:Name="BtnSaveChanges" Content="Сохранить изменения" Margin="5" Padding="10,5" Click="BtnSaveChanges_Click"/>
+            <Button x:Name="BtnRefreshPersons" Content="Обновить список" Margin="5" Padding="10,5" Click="BtnRefreshPersons_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>
